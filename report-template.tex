@@ -54,11 +54,11 @@
 
 \chapter{Analisi}
 % A brief analsysis of the problem, focusing in particular aspects that are relevant from concurrent point of view.
-    Il modello di simulazione dei boid, formulato da Craig Reynolds nel 1986, rappresenta un sistema multi-agente in cui 
-    entità autonome (boid) si muovono in uno spazio condiviso, modificando la propria traiettoria in funzione dei boid 
+    Il modello di simulazione dei Boid, formulato da Craig Reynolds nel 1986, rappresenta un sistema multi-agente in cui 
+    entità autonome (Boid) si muovono in uno spazio condiviso, modificando la propria traiettoria in funzione dei Boid 
     circostanti e di parametri predefiniti.
     
-    Dal punto di vista computazionale, l'algoritmo richiede l'aggiornamento sincronizzato delle velocità di ciascun boid 
+    Dal punto di vista computazionale, l'algoritmo richiede l'aggiornamento sincronizzato delle velocità di ciascun Boid 
     in base alle posizioni correnti dei vicini, seguito dall'aggiornamento delle posizioni secondo le nuove velocità 
     calcolate, per poi infine renderizzare lo stato aggiornato tramite l'interfaccia grafica.
     
@@ -71,109 +71,121 @@
 \chapter{Design}
 % A description of the adopted design, the strategy and architecture.
 
-    Il design implementato presenta una struttura architetturale modulare e flessibile, centrata attorno all'interfaccia `BoidsSimulator` che definisce il contratto fondamentale per tutte le implementazioni. Questa interfaccia è parzialmente realizzata dalla classe astratta `AbstractBoidsSimulator`, che fornisce l'implementazione comune e definisce due metodi astratti: `init()` per l'inizializzazione e `clear()` per la pulizia delle risorse.
-    
-    Da questa classe astratta derivano le implementazioni concrete:
+    % Conversione in Scala
+    L'applicazione è stata completamente convertita in \texttt{Scala}, partendo dal design già sviluppato per l'Assignment-01 e adottando uno stile funzionale e pulito.
+
+    % Architettura generale
+    Il design dell'applicazione si basa su un'architettura a tre livelli, ispirata al pattern Model-View-Controller (MVC).
     \begin{itemize}
-        \item `BoidsSimulator`: implementazione sequenziale di riferimento
-        \item `BoidsSimulatorPlatform`: versione concorrente basata su platform threads
-        \item `BoidsSimulatorExecutor`: versione che utilizza il framework Executor con approccio task-based
-        \item `BoidsSimulatorVirtual`: versione che sfrutta i virtual threads introdotti in Java 19, in realtà questa estende direttamente `BoidsSimulatorPlatform`, in quanto condivide parte dei meccanismi di sincronizzazione
+        \item \texttt{BoidsModel}: gestisce lo stato della simulazione, inclusi i Boid e le loro proprietà.
+        \item \texttt{BoidsView}: si occupa della visualizzazione grafica dei Boid e dell'interfaccia utente.
+        \item \texttt{BoidsSimulator}: funge da intermediario tra Model e View, gestendo la logica di aggiornamento e le interazioni dell'utente.
     \end{itemize}
+
+    % Utilizzo Akka e adozione FSM da Dining Hakkers
+    È stato poi adottato il framework \texttt{Akka} per definire un'architettura orientata al message passing, scegliendo il modello \textbf{FSM}\footnote{\href{https://doc.akka.io/libraries/akka-core/current/typed/fsm.html}{Behaviors as finite state machines}}(Finite State Machines) proposto a lezione e ispirandosi all'esempio fornito dei \texttt{Dining Hakkers}\footnote{\href{https://github.com/cric96/pcd-lab-akka-actors/blob/63e4f3273ef1550c1c744d1f7332b7ce935223ab/src/main/scala/it/unibo/pcd/akka/basics/e07fsm/DiningHakkers.scala}{Adattamento da akka-samples by cric-96}}.
     
-    \section{Modifiche generali}
+    % Spiegazione FSM
+    Utilizzando il modello \textbf{FSM}, ogni attore può essere in uno stato specifico e rispondere a messaggi in modo differente a seconda dello stato corrente, definendo diversi  \texttt{Behavior}. Questo approccio consente di gestire la logica di controllo della simulazione in modo chiaro e modulare, facilitando l'estensione e la manutenzione del codice.
+
+    % Dove viene usato il modello FSM?
+    Questo stile è stato adottato in due aree precise dell'applicazione: nell'aggiornamento dei Boids da parte del Model e nel Loop di Controllo dell'applicazione
     
-        L'architettura è stata progettata per massimizzare la reattività dell'interfaccia utente: le operazioni di avvio, interruzione e ripresa della simulazione vengono gestite attraverso variabili di stato condivise, evitando operazioni bloccanti nel ciclo di rendering.
-        
-        Una modifica architetturale significativa è stata la migrazione della generazione iniziale dei boid dalla View al Controller. Questo cambio ha migliorato la reattività dell'interfaccia utente, evitando di sovraccaricare l'Event Dispatch Thread (EDT) di Swing con operazioni computazionalmente intensive.
-        
-        Questo approccio permette di eseguire la creazione dei boid sul main thread, lasciando l'EDT libero di gestire esclusivamente gli eventi dell'interfaccia grafica, garantendo maggiore fluidità dell'applicazione, soprattutto con simulazioni di grandi dimensioni.
-    
-    \section{Multithreaded}
-        L'implementazione multithreaded adotta una strategia di decomposizione del dominio, distribuendo il carico di calcolo su un numero di thread equivalente alle unità di elaborazione disponibili nel sistema. Ciascun thread gestisce una porzione specifica dell'insieme dei boid, occupandosi del calcolo delle velocità e dell'aggiornamento delle posizioni.
-        
-        Per preservare la correttezza dell'algoritmo, che necessita di una netta separazione tra la fase di calcolo delle velocità e quella di aggiornamento delle posizioni, sono state integrate due \texttt{MyBarrier}:
+    \section{Loop di Controllo dell'applicazione}
+        La comunicazione nel BoidsSimulator avviene tramite due protocolli distinti:
         \begin{itemize}
-            \item La prima garantisce che il calcolo delle velocità sia completato da tutti i thread prima di procedere
-            \item La seconda coordina il completamento dell'aggiornamento delle posizioni
+            \item \texttt{Update}: per la comunicazione con il Model, gestisce i messaggi relativi all'aggiornamento dei \texttt{Boids} e della \texttt{View} 
+            \item \texttt{UI}: per la gestione dell'interfaccia utente, comprende i comandi \texttt{Start}, \texttt{Stop}, \texttt{Pause}, \texttt{Resume} e \texttt{ChangeAttribute}
+        \end{itemize}
+
+        Entrambi i protocolli estendono il trait \texttt{Loop}, garantendo un'interfaccia uniforme per la gestione dei messaggi.
+
+        Gli stati modellati nel \texttt{BoidsSimulator} sono:
+        \begin{itemize}
+            \item \texttt{notRunning}: lo stato iniziale.
+            \item \texttt{running}: quando la simulazione è attiva e i Boids vengono aggiornati.
+            \item \texttt{suspended}: quando la simulazione è sospesa, ma può essere ripresa.
+            \item \texttt{start}: quando la simulazione può essere avviata correttamente.
+            \item \texttt{handleAttributeChanging}: quando viene cambiato un attributo dagli sliders.
         \end{itemize}
         
-        Quando tutti i thread superano la seconda barriera, segnando la fine di un'iterazione dell'algoritmo, viene eseguito l'aggiornamento dell'interfaccia grafica e il calcolo del \texttt{framerate}.
-        
-        \subsection{MyBarrier}
-        Per coordinare i thread nella simulazione multithreaded, è stata implementata una barriera personalizzata (\texttt{MyBarrier}) utilizzando i primitivi di sincronizzazione forniti da Java, in particolare \texttt{Lock} e \texttt{Condition}. Questa implementazione si ispira alla funzionalità della classe \texttt{CyclicBarrier} della libreria standard \texttt{java.util.concurrent}, ma con un'implementazione specifica per le esigenze della simulazione.
-        
-        La barriera opera secondo il seguente principio: ciascun thread, al raggiungimento di un punto di sincronizzazione, invoca il metodo \texttt{await()}, che blocca il thread chiamante fino a quando tutti gli altri thread (il cui numero è specificato durante l'inizializzazione della barriera) non abbiano similmente raggiunto il punto di sincronizzazione.
-        
-        L'implementazione utilizza:
+    \section{Aggiornamento dei Boids}
+        Nell'implementazione scelta ogni Boid è rappresentato da un attore autonomo responsabile del proprio stato e della logica di aggiornamento. Gli attori comunicano con il Model esclusivamente attraverso messaggi asincroni, garantendo una gestione naturale della concorrenza e una chiara separazione delle responsabilità.
+
+        Il ciclo di aggiornamento dei Boids è orchestrato da un attore principale \texttt{BoidsModel} che coordina le operazioni con due semplici comandi:
         \begin{itemize}
-            \item Un \texttt{ReentrantLock} per garantire l'accesso esclusivo alla sezione critica
-            \item Una variabile \texttt{Condition} per la gestione dell'attesa e della notifica
-            \item Un contatore per tracciare il numero di thread arrivati alla barriera
+            \item \texttt{UpdateBoidsVel}
+            \item \texttt{UpdateBoidsPos}
         \end{itemize}
+        Tramite questi, coordina l'aggiornamento dei singoli Boids e ne raccoglie le risposte.
         
-        La natura ciclica della barriera consente il suo riutilizzo in iterazioni successive: una volta che tutti i thread hanno superato la barriera, il contatore viene azzerato in mutua esclusione dal primo thread che si risveglia, permettendo così di riutilizzare la stessa istanza per sincronizzazioni successive all'interno del ciclo principale della simulazione.
-        
-    \section{Executors}
-        
-        L'implementazione basata su Executor Framework adotta un approccio task-based, in cui il calcolo associato a ciascun boid viene incapsulato come unità atomica di elaborazione. Il thread principale, responsabile anche dell'aggiornamento dell'interfaccia grafica, orchestra la distribuzione e il coordinamento dei task.
-        
-        La strategia di decomposizione prevede il partizionamento dell'insieme dei boid in sottoinsiemi di cardinalità predefinita. Per ciascuna partizione vengono generati due tipi di task sequenziali:
+        Ogni BoidActor, invece, può ricevere uno dei seguenti messaggi:
         \begin{itemize}
-            \item Task per il calcolo delle velocità
-            \item Task per l'aggiornamento delle posizioni
+            \item \texttt{UpdateVel}: per calcolare la nuova velocità in base alle regole di interazione con i Boids vicini.
+            \item \texttt{UpdatePos}: per aggiornare la posizione in base alla velocità corrente.
+            \item \texttt{Kill}: per terminare l'attore Boid.
         \end{itemize}
-        
-        La sincronizzazione tra le fasi di elaborazione è garantita dal meccanismo dei \texttt{Future<Void>} restituiti dall'invocazione dei metodi \texttt{submit()} dell'executor. Il thread principale effettua operazioni di \texttt{get()} su tutti i \texttt{Future} relativi al calcolo delle velocità, assicurando il completamento di questa fase prima di procedere con la sottomissione dei task per l'aggiornamento delle posizioni.
-        
-        Al termine dell'elaborazione di tutti i task relativi all'aggiornamento posizionale, viene eseguito l'aggiornamento dell'interfaccia grafica e il calcolo del \texttt{framerate}.
-        
-        Questo approccio sfrutta efficacemente il pool di thread gestito dall'executor, ottimizzando l'utilizzo delle risorse computazionali attraverso una schedulazione dinamica dei task, piuttosto che una rigida associazione thread-partizione come nell'implementazione multithreaded tradizionale.
-        
-    \section{Virtual threads}
-        L'implementazione basata su virtual threads rappresenta un'ibridazione degli approcci precedenti, combinando elementi del partizionamento task-based e della sincronizzazione esplicita. In questa soluzione, viene abbandonata la limitazione imposta dal numero di unità di elaborazione fisiche, adottando invece un modello in cui:
-        
-        \begin{itemize}
-            \item Ogni partizione dell'insieme dei boid viene assegnata a un virtual thread dedicato, consentendo un grado di parallelismo potenzialmente più elevato rispetto all'implementazione con platform threads
-            \item Il meccanismo di sincronizzazione si basa su barriere cicliche, analogamente all'approccio multithreaded tradizionale, anziché sul pattern di coordinazione basato su \texttt{Future<Void>} dell'implementazione Executor
-        \end{itemize}
-        
-        Questa architettura sfrutta la leggerezza computazionale dei virtual threads, introdotti come caratteristica di anteprima in Java 19 e finalizzati in Java 21, che permettono la creazione di un numero significativamente maggiore di thread rispetto ai tradizionali platform threads, con un overhead di sistema notevolmente ridotto grazie alla loro gestione mediante il meccanismo di continuazioni implementato nel runtime Java.
-        
         
 \chapter{Comportamento}
 % A description of the behaviour of the system using one or multiple Petri Nets, choosing the propor level of abstraction.
-    Il comportamento del sistema di simulazione dei boid viene formalizzato attraverso reti di Petri che catturano gli aspetti dinamici e la sincronizzazione tra i diversi componenti. Questo modello formale permette di rappresentare efficacemente sia l'interazione dell'utente con l'applicazione che il ciclo di aggiornamento interno della simulazione.
+    % Introduzione alle reti di Petri
+    Il comportamento del sistema di simulazione dei Boid viene formalizzato attraverso reti di Petri che catturano gli aspetti dinamici e la sincronizzazione tra i diversi componenti. Questo modello formale permette di rappresentare efficacemente sia l'interazione dell'utente con l'applicazione che il ciclo di aggiornamento interno della simulazione.
+    Inoltre, avendo adottato il modello \textbf{FSM}, vengono forniti anche dei piccoli automi che rappresentano gli attori modellati, per evidenziare i loro possibili stati e messaggi accettabili.
     
-    Le reti di Petri presentate di seguito evidenziano due livelli di astrazione: il primo descrive il flusso di controllo dell'applicazione in risposta ai comandi dell'utente (avvio, arresto, sospensione), mentre il secondo si concentra sul ciclo di aggiornamento della simulazione, mostrando le dipendenze tra il calcolo delle velocità e l'aggiornamento delle posizioni, nonché i punti di sincronizzazione necessari per mantenere la coerenza del modello nelle diverse implementazioni parallele.
-    
-    Questa rappresentazione formale consente di verificare la correttezza dell'implementazione rispetto alle proprietà desiderate, come l'assenza di deadlock e la garanzia che gli aggiornamenti avvengano nella sequenza corretta, indipendentemente dal grado di parallelismo adottato.
-    
-    \section{Flusso d'esecuzione}
-        Una volta inizializzata l'applicazione con un numero specificato di boid, l'utente può avviare la simulazione tramite il comando \texttt{start}. Durante l'esecuzione, è possibile fermarne completamente il funzionamento con \texttt{stop} (che riporta il sistema allo stato iniziale liberando tutte le risorse), oppure metterla temporaneamente in pausa con \texttt{suspend} per poi riprenderla successivamente con \texttt{resume}.
-        \begin{figure}[h!]
+    \section{Loop di Controllo dell'applicazione}
+        Qui si descrive il flusso di controllo dell'applicazione in risposta ai comandi dell'utente.
+        Una volta inizializzata l'applicazione con un numero specificato di Boid, l'utente può avviare la simulazione tramite il comando \texttt{start}. Durante l'esecuzione, è possibile fermarne completamente il funzionamento con \texttt{stop} (che riporta il sistema allo stato iniziale liberando tutte le risorse), oppure metterla temporaneamente in pausa con \texttt{suspend} per poi riprenderla successivamente con \texttt{resume}.
+        \begin{figure}[ht!]
             \centering
             \includegraphics[width=\textwidth]{petri_nets_pdf/rete_app_flow.pdf}
             \caption{Rete di Petri per il flusso di esecuzione con input dell'utente.}
             \label{fig:rete_app_flow}
         \end{figure}
         
-        Per chiarire il comportamento del comando di stop nella rete di Petri mostrata in Fig. \ref{fig:rete_app_flow}, è importante sottolineare che l'evento di stop interrompe immediatamente l'esecuzione dei thread attivi, senza attendere il completamento del ciclo di calcolo corrente.
+        Per chiarire il comportamento del comando di stop nella rete di Petri mostrata in Fig. \ref{fig:rete_app_flow}, è importante sottolineare che l'evento di stop interrompe tutti i BoidActor, senza attendere il completamento del ciclo di calcolo corrente.
         
-        Questo comportamento è intenzionale e riflette l'implementazione del sistema, dove il comando di stop ha priorità assoluta e causa la terminazione immediata di tutti i thread di simulazione, indipendentemente dal loro stato di avanzamento nel ciclo di calcolo.
+        Questo comportamento è intenzionale e riflette l'implementazione del sistema, dove il comando di stop ha priorità assoluta e causa la terminazione immediata degli attori figli, indipendentemente dal loro stato di avanzamento nel ciclo di calcolo.
+
+        Gli stati modellati nel \texttt{BoidsSimulator} e i possibili messaggi accettati sono rappresentati dall'automa a stati finiti (FSM) in figura:
+        \begin{figure}[ht!]
+            \centering
+            \includegraphics[width=\textwidth]{img/FSM/Simulator.png}
+            \caption{Automa a stati finiti del BoidsSimulator.}
+            \label{fig:Boids_simulator_fsm}
+        \end{figure}
     
-    \section{Ciclo update}
-        Il ciclo di aggiornamento della simulazione inizia con lo stato iniziale \texttt{start}, seguito dalla fase di calcolo delle velocità (\texttt{update velocity}) eseguita in parallelo da thread distinti (nella figura due). Una volta completato il calcolo, i thread raggiungono una barriera di sincronizzazione (\texttt{velocity barrier}), che garantisce che tutte le velocità siano state aggiornate prima di procedere.
-        
-        Successivamente, i thread entrano nella fase di aggiornamento delle posizioni (\texttt{update position}), anch'essa eseguita in parallelo. Anche in questo caso, una barriera di sincronizzazione (\texttt{position barrier}) assicura che tutte le posizioni siano state aggiornate correttamente prima di tornare allo stato iniziale, completando così un ciclo di aggiornamento.
-        
-        Questa rete evidenzia chiaramente i punti di sincronizzazione necessari per mantenere la coerenza del modello, garantendo che le operazioni di calcolo delle velocità e aggiornamento delle posizioni siano eseguite in modo sequenziale e coordinato tra i thread.
-        
-        \begin{figure}[h!]
+    \section{Aggiornamento dei Boids}
+        %ciclo di aggiornamento della simulazione, mostrando le dipendenze tra il calcolo delle velocità e l'aggiornamento delle posizioni, nonché i punti di sincronizzazione necessari per mantenere la coerenza del modello.
+
+        Il ciclo di aggiornamento della simulazione nel Model inizia con lo stato iniziale \texttt{updateBoids}, creato dal Controller, questo passa direttamente allo stato \texttt{startUpdatingVel} che chiede a tutti i Boid di calcolare la propria velocità e si mette in attesa di risposta in \texttt{updatingVel}. Una volta che tutti i Boid hanno risposto, il Model passa allo stato \texttt{startUpdatingPos} per aggiornare le posizioni dei Boid, attende in \texttt{updatingPos} fino a quando tutti i Boid hanno aggiornato le loro posizioni. 
+        Infine, dopo aver ricevuto tutte le risposte, il Model passa allo stato \texttt{endUpdatingPos} che dice al Controller di aggiornare la View, poi termina.
+                
+        \begin{figure}[ht!]
             \centering
             \includegraphics[width=0.8\textwidth]{petri_nets_pdf/rete_update_cycle.pdf}
             \caption{Rete di Petri per il ciclo di aggiornamento della simulazione.}
             \label{fig:rete_update_cycle}
+        \end{figure}
+        
+        Questa rete evidenzia chiaramente i punti di sincronizzazione necessari per mantenere la coerenza del modello, garantendo che le operazioni di calcolo delle velocità e aggiornamento delle posizioni siano eseguite in modo sequenziale e coordinato tra i vari BoidActors.
+
+        Per migliorare la comprensione del ciclo di aggiornamento della simulazione, è stato creato un automa a stati finiti (FSM) che rappresenta il comportamento del Model. Questo automa mostra gli stati principali e le transizioni tra di essi, modellati con messaggi.
+
+        \begin{figure}[ht!]
+            \centering
+            \includegraphics[width=\textwidth]{img/FSM/BoidsModel.png}
+            \caption{Automa a stati finiti del BoidsModel.}
+            \label{fig:Boids_model_fsm}
+        \end{figure}
+
+        Ogni BoidActor può aggiornare il suo stato tramite i messaggi \texttt{UpdateVel} e \texttt{UpdatePos}, oppure terminare la propria esecuzione con il messaggio \texttt{Kill}. Questi messaggi sono gestiti in modo asincrono, consentendo a ciascun BoidActor di operare in parallelo con gli altri.
+
+        Il suo automa può essere rappresentato come in figura:
+        \begin{figure}[ht!]
+            \centering
+            \includegraphics[width=\textwidth]{img/FSM/BoidActor.png}
+            \caption{Automa a stati finiti del BoidActor.}
+            \label{fig:Boid_actor_fsm}
         \end{figure}
 
         \begin{lstlisting}[style=bash, caption={Avvio dello script}]
