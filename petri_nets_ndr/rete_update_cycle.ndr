@@ -1,0 +1,29 @@
+p 570.0 250.0 {thread2-update position} 0 s
+t 660.0 170.0 {await positions} n 0 w n {} ne
+p 165.0 235.0 {thread2-update velocity} 0 s
+t 250.0 170.0 {await velocities} n 0 w n {} ne
+p 350.0 170.0 {velocity barrier} 0 n
+p 565.0 135.0 {thread1-update position} 0 n
+p 750.0 170.0 {position barrier} 0 n
+p 175.0 50.0 update 1 n
+t 65.0 170.0 start w 0 w n {} ne
+p 165.0 125.0 {thread1-update velocity} 0 n
+t 865.0 170.0 {signal positions} n 0 w n {} ne
+t 465.0 170.0 {signal velocities} n 0 w n {} ne
+e {signal positions} 0.4025116202 226.0179377 update 0.0 58.9764 1 n
+e update 0.5190833123 70.19611128 start 0.2289037685 63.53210997 1 n
+e start {thread1-update velocity} 1 n
+e start {thread2-update velocity} 1 n
+e {thread1-update velocity} {await velocities} 1 n
+e {thread2-update velocity} {await velocities} 1 n
+e {thread2-update position} {await positions} 1 n
+e {thread1-update position} {await positions} 1 n
+e {await velocities} {velocity barrier} 1 n
+e {velocity barrier} {signal velocities} 1 n
+e {signal velocities} {thread1-update position} 1 n
+e {signal velocities} {thread2-update position} 1 n
+e {await positions} {position barrier} 1 n
+e {position barrier} {signal positions} 1 n
+h rete_update_cycle
+
+

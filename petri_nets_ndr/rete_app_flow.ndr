@@ -1,0 +1,28 @@
+p 100.0 230.0 {not running} 1 w
+t 100.0 50.0 {stop while suspended} n 0 w n {} ne
+t 205.0 230.0 {input valid number} s 0 w n {} ne
+p 310.0 230.0 {model on} 0 s
+t 405.0 230.0 start s 0 w n {} ne
+p 500.0 230.0 running 0 s
+t 500.0 130.0 suspend w 0 w n {} ne
+t 615.0 135.0 resume e 0 w n {} ne
+t 310.0 130.0 {stop while running} n 0 w n {} ne
+p 500.0 50.0 suspended 0 n
+t 100.0 350.0 {input not valid} s 0 w n {} ne
+e {stop while suspended} {not running} 1 n
+e {stop while running} {not running} 1 n
+e running {stop while running} 1 n
+e suspended {stop while suspended} 1 n
+e {model on} start 1 n
+e {input valid number} {model on} 1 n
+e {not running} {input valid number} 1 n
+e {input not valid} 0.1541429917 58.24946352 {not running} 0.8589088986 49.04079934 1 n
+e {not running} 0.6624033561 51.62363794 {input not valid} 0.3264222295 54.12023651 1 n
+e resume running 1 n
+e suspended resume 1 n
+e suspend suspended 1 n
+e running suspend 1 n
+e start running 1 n
+h rete_app_flow
+
+
