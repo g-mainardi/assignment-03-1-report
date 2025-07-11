@@ -94,8 +94,8 @@
     \section{Loop di Controllo dell'applicazione}
         La comunicazione nel BoidsSimulator avviene tramite due protocolli distinti:
         \begin{itemize}
-            \item \texttt{Update}: per la comunicazione con il Model, gestisce i messaggi relativi all'aggiornamento dei \texttt{Boids} e della \texttt{View} 
-            \item \texttt{UI}: per la gestione dell'interfaccia utente, comprende i comandi \texttt{Start}, \texttt{Stop}, \texttt{Pause}, \texttt{Resume} e \texttt{ChangeAttribute}
+            \item \texttt{Update}: per far partire l'aggiornamento al Model con \texttt{Update.Boids}, il quale risponde con \texttt{Update.View} quando ha finito. 
+            \item \texttt{UI}: per la gestione dell'interfaccia utente, comprende i comandi \texttt{Start}, \texttt{Stop}, \texttt{Pause}, \texttt{Resume} e \texttt{ChangeAttribute}.
         \end{itemize}
 
         Entrambi i protocolli estendono il trait \texttt{Loop}, garantendo un'interfaccia uniforme per la gestione dei messaggi.
@@ -106,87 +106,100 @@
             \item \texttt{running}: quando la simulazione è attiva e i Boids vengono aggiornati.
             \item \texttt{suspended}: quando la simulazione è sospesa, ma può essere ripresa.
             \item \texttt{start}: quando la simulazione può essere avviata correttamente.
+        \end{itemize}
+
+        Con due stati ausiliari:
+        \begin{itemize}
             \item \texttt{handleAttributeChanging}: quando viene cambiato un attributo dagli sliders.
+            \item \texttt{updateBoids}(solo per lo stato \texttt{running}): per creare un attore dal Model e delegarlo dell'aggiornamento dei Boids.
         \end{itemize}
         
     \section{Aggiornamento dei Boids}
-        Nell'implementazione scelta ogni Boid è rappresentato da un attore autonomo responsabile del proprio stato e della logica di aggiornamento. Gli attori comunicano con il Model esclusivamente attraverso messaggi asincroni, garantendo una gestione naturale della concorrenza e una chiara separazione delle responsabilità.
+        Nell'implementazione scelta un Boid ora è semplicemente un oggetto con posizione e velocità accessibili e modificabili (getter/setter), mentre della logica di aggiornamento se ne occupa una classe separata \texttt{BoidActor}, che wrappa il Boid.
+        Ogni Boid è quindi rappresentato da un attore autonomo responsabile del proprio stato e dei calcoli necessari. I \texttt{BoidActor} comunicano con il Model esclusivamente attraverso messaggi asincroni, garantendo una gestione naturale della concorrenza e una chiara separazione delle responsabilità.
 
-        Il ciclo di aggiornamento dei Boids è orchestrato da un attore principale \texttt{BoidsModel} che coordina le operazioni con due semplici comandi:
-        \begin{itemize}
-            \item \texttt{UpdateBoidsVel}
-            \item \texttt{UpdateBoidsPos}
-        \end{itemize}
-        Tramite questi, coordina l'aggiornamento dei singoli Boids e ne raccoglie le risposte.
+        \subsection*{BoidsModel}
+            Il ciclo di aggiornamento dei Boids è orchestrato da un attore principale \texttt{BoidsModel}, avviato dal Controller, che coordina le operazioni e può ricevere solo due semplici comandi (dai \texttt{BoidActor}):
+            \begin{itemize}
+                \item \texttt{UpdatedBoidsVel}
+                \item \texttt{UpdatedBoidsPos}
+            \end{itemize}
+            Tramite questi può tenere traccia del numero di Boid che hanno aggiornato la propria velocità e posizione, rispettivamente.
         
-        Ogni BoidActor, invece, può ricevere uno dei seguenti messaggi:
-        \begin{itemize}
-            \item \texttt{UpdateVel}: per calcolare la nuova velocità in base alle regole di interazione con i Boids vicini.
-            \item \texttt{UpdatePos}: per aggiornare la posizione in base alla velocità corrente.
-            \item \texttt{Kill}: per terminare l'attore Boid.
-        \end{itemize}
+        \subsection*{BoidActor}
+            D'altra parte, il Model può mandare ai \texttt{BoidActor} uno dei seguenti messaggi:
+            \begin{itemize}
+                \item \texttt{UpdateVel}: per calcolare la nuova velocità in base alle regole di interazione con i Boids vicini.
+                \item \texttt{UpdatePos}: per aggiornare la posizione in base alla velocità corrente.
+                \item \texttt{Kill}: per terminare l'attore Boid.
+            \end{itemize}
         
 \chapter{Comportamento}
 % A description of the behaviour of the system using one or multiple Petri Nets, choosing the propor level of abstraction.
     % Introduzione alle reti di Petri
     Il comportamento del sistema di simulazione dei Boid viene formalizzato attraverso reti di Petri che catturano gli aspetti dinamici e la sincronizzazione tra i diversi componenti. Questo modello formale permette di rappresentare efficacemente sia l'interazione dell'utente con l'applicazione che il ciclo di aggiornamento interno della simulazione.
+
     Inoltre, avendo adottato il modello \textbf{FSM}, vengono forniti anche dei piccoli automi che rappresentano gli attori modellati, per evidenziare i loro possibili stati e messaggi accettabili.
     
     \section{Loop di Controllo dell'applicazione}
-        Qui si descrive il flusso di controllo dell'applicazione in risposta ai comandi dell'utente.
         Una volta inizializzata l'applicazione con un numero specificato di Boid, l'utente può avviare la simulazione tramite il comando \texttt{start}. Durante l'esecuzione, è possibile fermarne completamente il funzionamento con \texttt{stop} (che riporta il sistema allo stato iniziale liberando tutte le risorse), oppure metterla temporaneamente in pausa con \texttt{suspend} per poi riprenderla successivamente con \texttt{resume}.
-        \begin{figure}[ht!]
-            \centering
-            \includegraphics[width=\textwidth]{petri_nets_pdf/rete_app_flow.pdf}
-            \caption{Rete di Petri per il flusso di esecuzione con input dell'utente.}
-            \label{fig:rete_app_flow}
-        \end{figure}
-        
-        Per chiarire il comportamento del comando di stop nella rete di Petri mostrata in Fig. \ref{fig:rete_app_flow}, è importante sottolineare che l'evento di stop interrompe tutti i BoidActor, senza attendere il completamento del ciclo di calcolo corrente.
-        
-        Questo comportamento è intenzionale e riflette l'implementazione del sistema, dove il comando di stop ha priorità assoluta e causa la terminazione immediata degli attori figli, indipendentemente dal loro stato di avanzamento nel ciclo di calcolo.
 
-        Gli stati modellati nel \texttt{BoidsSimulator} e i possibili messaggi accettati sono rappresentati dall'automa a stati finiti (FSM) in figura:
-        \begin{figure}[ht!]
-            \centering
-            \includegraphics[width=\textwidth]{img/FSM/Simulator.png}
-            \caption{Automa a stati finiti del BoidsSimulator.}
-            \label{fig:Boids_simulator_fsm}
-        \end{figure}
+        \subsection*{Rete di Petri}
+            Nella rete in Fig. \ref{fig:rete_app_flow} vengono rappresentati gli stati come piazze e i messaggi come transizioni. Più precisamente, le transizioni marchiate con \textbf{UI} (User Interaction) rappresentano i comandi dell'utente, mentre le altre (che iniziano con \textbf{Update}) rappresentano le interazioni dell'aggiornamento con il Model.
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=0.8\textwidth]{petri_nets_pdf/rete_app_flow.pdf}
+                \caption{Rete di Petri per il flusso di esecuzione con input dell'utente.}
+                \label{fig:rete_app_flow}
+            \end{figure}
+            
+            Per chiarire il comportamento del comando di stop, è importante sottolineare che questo evento termina tutti i \texttt{BoidActor}, senza attendere il completamento del ciclo di calcolo corrente. Questo comportamento è intenzionale e riflette l'implementazione del sistema, dove il comando di stop ha priorità assoluta e causa la terminazione immediata degli attori figli, indipendentemente dal loro stato di avanzamento nel ciclo di calcolo.
+
+        \subsection*{Automa a stati finiti}
+            Gli stati modellati nel \texttt{BoidsSimulator} e i possibili messaggi accettati sono rappresentati dall'automa a stati finiti in figura:
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=\textwidth]{img/FSM/Simulator.png}
+                \caption{Automa a stati finiti del BoidsSimulator.}
+                \label{fig:Boids_simulator_fsm}
+            \end{figure}
     
     \section{Aggiornamento dei Boids}
         %ciclo di aggiornamento della simulazione, mostrando le dipendenze tra il calcolo delle velocità e l'aggiornamento delle posizioni, nonché i punti di sincronizzazione necessari per mantenere la coerenza del modello.
 
         Il ciclo di aggiornamento della simulazione nel Model inizia con lo stato iniziale \texttt{updateBoids}, creato dal Controller, questo passa direttamente allo stato \texttt{startUpdatingVel} che chiede a tutti i Boid di calcolare la propria velocità e si mette in attesa di risposta in \texttt{updatingVel}. Una volta che tutti i Boid hanno risposto, il Model passa allo stato \texttt{startUpdatingPos} per aggiornare le posizioni dei Boid, attende in \texttt{updatingPos} fino a quando tutti i Boid hanno aggiornato le loro posizioni. 
         Infine, dopo aver ricevuto tutte le risposte, il Model passa allo stato \texttt{endUpdatingPos} che dice al Controller di aggiornare la View, poi termina.
-                
-        \begin{figure}[ht!]
-            \centering
-            \includegraphics[width=0.8\textwidth]{petri_nets_pdf/rete_update_cycle.pdf}
-            \caption{Rete di Petri per il ciclo di aggiornamento della simulazione.}
-            \label{fig:rete_update_cycle}
-        \end{figure}
         
-        Questa rete evidenzia chiaramente i punti di sincronizzazione necessari per mantenere la coerenza del modello, garantendo che le operazioni di calcolo delle velocità e aggiornamento delle posizioni siano eseguite in modo sequenziale e coordinato tra i vari BoidActors.
+        
+        \subsection*{Rete di Petri}
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=\textwidth]{petri_nets_pdf/rete_update_cycle.pdf}
+                \caption{Rete di Petri per il ciclo di aggiornamento della simulazione.}
+                \label{fig:rete_update_cycle}
+            \end{figure}
 
-        Per migliorare la comprensione del ciclo di aggiornamento della simulazione, è stato creato un automa a stati finiti (FSM) che rappresenta il comportamento del Model. Questo automa mostra gli stati principali e le transizioni tra di essi, modellati con messaggi.
+            La rete in Fig. \ref{fig:rete_update_cycle} evidenzia chiaramente i punti di sincronizzazione necessari per mantenere la coerenza del modello, garantendo che le operazioni di calcolo delle velocità e aggiornamento delle posizioni siano eseguite in modo sequenziale e coordinato tra i vari BoidActors.
 
-        \begin{figure}[ht!]
-            \centering
-            \includegraphics[width=\textwidth]{img/FSM/BoidsModel.png}
-            \caption{Automa a stati finiti del BoidsModel.}
-            \label{fig:Boids_model_fsm}
-        \end{figure}
+        \subsection*{Automa a stati finiti dell'aggiornamento}
+            Per migliorare la comprensione del ciclo di aggiornamento della simulazione, è stato creato un automa a stati finiti (FSM) che rappresenta il comportamento del Model. Questo automa mostra gli stati principali e le transizioni tra di essi, modellati con messaggi.
 
-        Ogni BoidActor può aggiornare il suo stato tramite i messaggi \texttt{UpdateVel} e \texttt{UpdatePos}, oppure terminare la propria esecuzione con il messaggio \texttt{Kill}. Questi messaggi sono gestiti in modo asincrono, consentendo a ciascun BoidActor di operare in parallelo con gli altri.
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=\textwidth]{img/FSM/BoidsModel.png}
+                \caption{Automa a stati finiti dell'updateBoids nel Model.}
+                \label{fig:Boids_model_fsm}
+            \end{figure}
+        \subsection*{Automa a stati finiti del BoidActor}
+            Ogni BoidActor può aggiornare il suo stato tramite i messaggi \texttt{UpdateVel} e \texttt{UpdatePos}, oppure terminare la propria esecuzione con il messaggio \texttt{Kill}. Questi messaggi sono gestiti in modo asincrono, consentendo a ciascun BoidActor di operare in parallelo con gli altri.
 
-        Il suo automa può essere rappresentato come in figura:
-        \begin{figure}[ht!]
-            \centering
-            \includegraphics[width=\textwidth]{img/FSM/BoidActor.png}
-            \caption{Automa a stati finiti del BoidActor.}
-            \label{fig:Boid_actor_fsm}
-        \end{figure}
+            Il suo automa può essere rappresentato come in figura:
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=\textwidth]{img/FSM/BoidActor.png}
+                \caption{Automa a stati finiti del BoidActor.}
+                \label{fig:Boid_actor_fsm}
+            \end{figure}
 
         \begin{lstlisting}[style=bash, caption={Avvio dello script}]
             $ mvn clean javafx:run

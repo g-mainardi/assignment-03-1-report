@@ -4,7 +4,7 @@
 <</Type /Page
 /Parent 2 0 R
 /Resources 3 0 R
-/MediaBox [0 0 595.276 274.961]
+/MediaBox [0 0 723 454]
 /Contents [5 0 R]
 >>
 endobj
@@ -22,11 +22,11 @@ q
 0 J
 0 j
 10.433 M
-0.716043 0 0 -0.716043 -6.444 280.689 cm
-9 8 m
-9 392 l
-685 392 l
-685 8 l
+1.02845 0 0 -1.02845 -8.228 462.228 cm
+8 8 m
+8 442 l
+711 442 l
+711 8 l
 W
 n
 q
@@ -34,16 +34,67 @@ q
 0 0 0 rg
 1 w
 1 j
-480 230 m
-469.999 226.499 l
-471.713 229.5 l
-471.713 230.5 l
-469.999 233.501 l
-480 230 l
+510.865 246.791 m
+513.359 257.09 l
+514.947 254.02 l
+515.787 253.477 l
+519.237 253.286 l
+510.865 246.791 l
 f
-421 230 m
-437.008 230 447.498 230 452.5 230 c
-457.503 230 465.042 230 475.143 230 c
+544.647 299 m
+537.059 287.272 531.349 278.448 527.5 272.5 c
+523.651 266.552 518.991 259.349 513.504 250.87 c
+S
+Q
+q
+0 0 0 RG
+0 0 0 rg
+1 w
+1 j
+545.588 331 m
+537.5 337.845 l
+540.956 337.889 l
+541.818 338.396 l
+543.535 341.395 l
+545.588 331 l
+f
+515.14 382.761 m
+521.904 371.263 526.852 362.851 530 357.5 c
+533.148 352.149 537.518 344.719 543.125 335.187 c
+S
+Q
+q
+0 0 0 RG
+0 0 0 rg
+1 w
+1 j
+496.484 381.904 m
+495.393 371.364 l
+493.408 374.193 l
+492.503 374.619 l
+489.058 374.345 l
+496.484 381.904 l
+f
+472.529 331 m
+478.868 344.469 483.02 353.293 485 357.5 c
+486.98 361.707 490.115 368.37 494.416 377.508 c
+S
+Q
+q
+0 0 0 RG
+0 0 0 rg
+1 w
+1 j
+471.588 299 m
+478.633 291.085 l
+475.206 291.528 l
+474.281 291.147 l
+472.159 288.419 l
+471.588 299 l
+f
+492.385 248.494 m
+487.306 260.829 484.014 268.823 482.5 272.5 c
+480.986 276.177 477.968 283.506 473.438 294.508 c
 S
 Q
 q
@@ -153,50 +204,16 @@ q
 0 0 0 rg
 1 w
 1 j
-189 230 m
-178.999 226.499 l
-180.713 229.5 l
-180.713 230.5 l
-178.999 233.501 l
-189 230 l
+289 230 m
+278.999 226.499 l
+280.713 229.5 l
+280.713 230.5 l
+278.999 233.501 l
+289 230 l
 f
 120 230 m
-133.34 230 144.163 230 152.5 230 c
-160.838 230 171.374 230 184.143 230 c
-S
-Q
-q
-0 0 0 RG
-0 0 0 rg
-1 w
-1 j
-290 230 m
-279.999 226.499 l
-281.713 229.5 l
-281.713 230.5 l
-279.999 233.501 l
-290 230 l
-f
-221 230 m
-237.008 230 249.163 230 257.5 230 c
-265.837 230 275.042 230 285.143 230 c
-S
-Q
-q
-0 0 0 RG
-0 0 0 rg
-1 w
-1 j
-389 230 m
-378.999 226.499 l
-380.713 229.5 l
-380.713 230.5 l
-378.999 233.501 l
-389 230 l
-f
-330 230 m
-343.34 230 352.498 230 357.5 230 c
-362.503 230 371.374 230 384.143 230 c
+140.844 230 168.316 230 202.5 230 c
+236.684 230 263.871 230 284.143 230 c
 S
 Q
 q
@@ -269,6 +286,23 @@ S
 Q
 q
 0 0 0 RG
+0 0 0 rg
+1 w
+1 j
+480 230 m
+469.999 226.499 l
+471.713 229.5 l
+471.713 230.5 l
+469.999 233.501 l
+480 230 l
+f
+321 230 m
+342.844 230 369.984 230 402.5 230 c
+435.016 230 459.206 230 475.143 230 c
+S
+Q
+q
+0 0 0 RG
 1 1 1 rg
 2 w
 120 230 m
@@ -284,11 +318,11 @@ BT
 /Helvetica 16 Tf
 0 Tr
 16 TL
-/Helvetica 13.192 Tf
+/Helvetica 13.101 Tf
 0 Tr
-13.192 TL
-1 0 0 -1 8 233.657 Tm
-(not running) Tj
+13.101 TL
+1 0 0 -1 7 233.625 Tm
+(notRunning) Tj
 ET
 Q
 q
@@ -315,75 +349,11 @@ BT
 /Helvetica 16 Tf
 0 Tr
 16 TL
-/Helvetica 13.207 Tf
+/Helvetica 13.495 Tf
 0 Tr
-13.207 TL
-1 0 0 -1 36.5 20.028 Tm
-(stop while suspended) Tj
-ET
-Q
-q
-0 0 0 RG
-1 1 1 rg
-2 w
-189 214 32 32 re
-B
-Q
-q
-0 0 0 rg
-BT
-/Helvetica 16 Tf
-0 Tr
-16 TL
-/Helvetica 12.974 Tf
-0 Tr
-12.974 TL
-1 0 0 -1 152 267.079 Tm
-(input valid number) Tj
-ET
-Q
-q
-0 0 0 RG
-1 1 1 rg
-2 w
-330 230 m
-330 241.046 321.046 250 310 250 c
-298.954 250 290 241.046 290 230 c
-290 218.954 298.954 210 310 210 c
-321.046 210 330 218.954 330 230 c
-b
-Q
-q
-0 0 0 rg
-BT
-/Helvetica 16 Tf
-0 Tr
-16 TL
-/Helvetica 13.372 Tf
-0 Tr
-13.372 TL
-1 0 0 -1 282.5 267.45 Tm
-(model on) Tj
-ET
-Q
-q
-0 0 0 RG
-1 1 1 rg
-2 w
-389 214 32 32 re
-B
-Q
-q
-0 0 0 rg
-BT
-/Helvetica 16 Tf
-0 Tr
-16 TL
-/Helvetica 14.396 Tf
-0 Tr
-14.396 TL
-1 0 0 -1 391 268.403 Tm
-(start) Tj
+13.495 TL
+1 0 0 -1 76 19.964 Tm
+(Stop \(2\)) Tj
 ET
 Q
 q
@@ -406,7 +376,7 @@ BT
 /Helvetica 13.193 Tf
 0 Tr
 13.193 TL
-1 0 0 -1 478 267.283 Tm
+1 0 0 -1 526 233.657 Tm
 (running) Tj
 ET
 Q
@@ -423,11 +393,11 @@ BT
 /Helvetica 16 Tf
 0 Tr
 16 TL
-/Helvetica 13.492 Tf
+/Helvetica 13.428 Tf
 0 Tr
-13.492 TL
-1 0 0 -1 423 133.763 Tm
-(suspend) Tj
+13.428 TL
+1 0 0 -1 421 133.74 Tm
+(Suspend) Tj
 ET
 Q
 q
@@ -443,11 +413,11 @@ BT
 /Helvetica 16 Tf
 0 Tr
 16 TL
-/Helvetica 13.497 Tf
+/Helvetica 13.43 Tf
 0 Tr
-13.497 TL
-1 0 0 -1 641 138.765 Tm
-(resume) Tj
+13.43 TL
+1 0 0 -1 641 138.741 Tm
+(Resume) Tj
 ET
 Q
 q
@@ -463,11 +433,11 @@ BT
 /Helvetica 16 Tf
 0 Tr
 16 TL
-/Helvetica 13.153 Tf
+/Helvetica 13.495 Tf
 0 Tr
-13.153 TL
-1 0 0 -1 257 100.041 Tm
-(stop while running) Tj
+13.495 TL
+1 0 0 -1 286 99.964 Tm
+(Stop \(1\)) Tj
 ET
 Q
 q
@@ -507,11 +477,186 @@ BT
 /Helvetica 16 Tf
 0 Tr
 16 TL
-/Helvetica 13.128 Tf
+/Helvetica 13.073 Tf
 0 Tr
-13.128 TL
-1 0 0 -1 59.5 387.222 Tm
-(input not valid) Tj
+13.073 TL
+1 0 0 -1 57.5 387.171 Tm
+(Start\(not valid\)) Tj
+ET
+Q
+q
+0 0 0 RG
+1 1 1 rg
+2 w
+539 299 32 32 re
+B
+Q
+q
+0 0 0 rg
+BT
+/Helvetica 16 Tf
+0 Tr
+16 TL
+/Helvetica 13.23 Tf
+0 Tr
+13.23 TL
+1 0 0 -1 581 318.67 Tm
+(Update.View) Tj
+ET
+Q
+q
+0 0 0 RG
+1 1 1 rg
+2 w
+449 299 32 32 re
+B
+Q
+q
+0 0 0 rg
+BT
+/Helvetica 16 Tf
+0 Tr
+16 TL
+/Helvetica 13.327 Tf
+0 Tr
+13.327 TL
+1 0 0 -1 359 318.704 Tm
+(Update.Boids) Tj
+ET
+Q
+q
+0 0 0 RG
+1 1 1 rg
+2 w
+525 400 m
+525 411.046 516.046 420 505 420 c
+493.954 420 485 411.046 485 400 c
+485 388.954 493.954 380 505 380 c
+516.046 380 525 388.954 525 400 c
+b
+Q
+q
+0 0 0 rg
+BT
+/Helvetica 16 Tf
+0 Tr
+16 TL
+/Helvetica 13.312 Tf
+0 Tr
+13.312 TL
+1 0 0 -1 468 437.393 Tm
+(updateBoids) Tj
+ET
+Q
+q
+0 0 0 RG
+1 1 1 rg
+2 w
+289 214 32 32 re
+B
+Q
+q
+0 0 0 rg
+BT
+/Helvetica 16 Tf
+0 Tr
+16 TL
+/Helvetica 13.033 Tf
+0 Tr
+13.033 TL
+1 0 0 -1 273.5 267.133 Tm
+(Start\(valid\)) Tj
+ET
+Q
+q
+0 0 0 rg
+BT
+/Helvetica-Bold 16 Tf
+0 Tr
+16 TL
+/Helvetica-Bold 15 Tf
+0 Tr
+15 TL
+1 0 0 -1 302.5 133.58 Tm
+(UI) Tj
+ET
+Q
+q
+0 0 0 rg
+BT
+/Helvetica-Bold 16 Tf
+0 Tr
+16 TL
+/Helvetica-Bold 15 Tf
+0 Tr
+15 TL
+1 0 0 -1 297.5 233.58 Tm
+(UI) Tj
+ET
+Q
+q
+0 0 0 rg
+BT
+/Helvetica-Bold 16 Tf
+0 Tr
+16 TL
+/Helvetica-Bold 15 Tf
+0 Tr
+15 TL
+1 0 0 -1 492.5 133.58 Tm
+(UI) Tj
+ET
+Q
+q
+0 0 0 rg
+BT
+/Helvetica-Bold 16 Tf
+0 Tr
+16 TL
+/Helvetica-Bold 15 Tf
+0 Tr
+15 TL
+1 0 0 -1 607.5 138.58 Tm
+(UI) Tj
+ET
+Q
+q
+0 0 0 rg
+BT
+/Helvetica-Bold 16 Tf
+0 Tr
+16 TL
+/Helvetica-Bold 15 Tf
+0 Tr
+15 TL
+1 0 0 -1 92.5 53.58 Tm
+(UI) Tj
+ET
+Q
+q
+0 0 0 rg
+BT
+/Helvetica-Bold 16 Tf
+0 Tr
+16 TL
+/Helvetica-Bold 15 Tf
+0 Tr
+15 TL
+1 0 0 -1 92.5 353.58 Tm
+(UI) Tj
+ET
+Q
+q
+0 0 0 rg
+BT
+/Helvetica-Bold 16 Tf
+0 Tr
+16 TL
+/Helvetica-Bold 13.628 Tf
+0 Tr
+13.628 TL
+1 0 0 -1 531 404.002 Tm
+(see the update net for detail) Tj
 ET
 Q
 Q
@@ -520,7 +665,7 @@ endstream
 endobj
 
 6 0 obj
-5700
+7283
 endobj
 
 7 0 obj
@@ -530,6 +675,15 @@ endobj
 /Encoding /WinAnsiEncoding
 /Name /Helvetica
 /BaseFont /Helvetica
+>>
+endobj
+8 0 obj
+<<
+/Type /Font
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/Name /Helvetica-Bold
+/BaseFont /Helvetica-Bold
 >>
 endobj
 1 0 obj
@@ -552,26 +706,28 @@ endobj
 /ProcSet[/PDF /Text /ImageC]
 /Font <<
 /Helvetica 7 0 R
+/Helvetica-Bold 8 0 R
 >>
 >>
 endobj
 
 xref
-0 8
+0 9
 0000000000 65535 f 
-0000006016 00000 n 
-0000006066 00000 n 
-0000006125 00000 n 
+0000007715 00000 n 
+0000007765 00000 n 
+0000007824 00000 n 
 0000000014 00000 n 
-0000000128 00000 n 
-0000005881 00000 n 
-0000005902 00000 n 
+0000000120 00000 n 
+0000007456 00000 n 
+0000007477 00000 n 
+0000007591 00000 n 
 trailer
 <<
-/Size 8
+/Size 9
 /Root 1 0 R
 >>
 
 startxref
-6205
+7926
 %%EOF
