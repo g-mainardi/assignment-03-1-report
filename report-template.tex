@@ -58,14 +58,62 @@
     entità autonome (Boid) si muovono in uno spazio condiviso, modificando la propria traiettoria in funzione dei Boid 
     circostanti e di parametri predefiniti.
     
-    Dal punto di vista computazionale, l'algoritmo richiede l'aggiornamento sincronizzato delle velocità di ciascun Boid 
-    in base alle posizioni correnti dei vicini, seguito dall'aggiornamento delle posizioni secondo le nuove velocità 
+    Dal punto di vista computazionale, l'algoritmo presenta una complessità computazionale di O(n²) nel caso peggiore, dove n rappresenta 
+    il numero di Boid nella simulazione, dato che l'aggiornamento sincronizzato delle velocità di ciascun Boid avviene
+    in base alle posizioni correnti dei vicini. Procede l'aggiornamento delle posizioni secondo le nuove velocità 
     calcolate, per poi infine renderizzare lo stato aggiornato tramite l'interfaccia grafica.
     
     In ottica di ottimizzazione delle prestazioni tramite programmazione concorrente, emerge l'opportunità di distribuire 
     il carico computazionale tra più unità di elaborazione. Tale distribuzione deve tuttavia preservare la correttezza 
     dell'algoritmo, garantendo che l'aggiornamento delle velocità preceda sempre quello delle posizioni, e che la 
     visualizzazione avvenga solo a computazione completata.
+
+    Nel contesto dell'Asyncronous Message Passing con Attori, si propone di implementare un sistema in cui ogni Boid 
+    è rappresentato da un attore autonomo, responsabile del proprio stato e della logica di aggiornamento.
+
+    \section{Sfide della programmazione concorrente}
+        L'implementazione concorrente della simulazione presenta diverse sfide specifiche che devono essere affrontate:
+
+        \subsection*{Sincronizzazione delle fasi di calcolo}
+            La natura sequenziale dell'algoritmo richiede una sincronizzazione rigorosa tra le fasi di:
+            \begin{enumerate}
+                \item Calcolo delle nuove velocità (basato sulle posizioni correnti)
+                \item Aggiornamento delle posizioni (basato sulle nuove velocità)
+                \item Rendering dell'interfaccia grafica
+            \end{enumerate}
+            
+            Questa dipendenza temporale impedisce la sovrapposizione delle fasi e richiede punti di sincronizzazione 
+            espliciti per garantire la correttezza dell'algoritmo.
+
+        \subsection*{Condivisione dello stato}
+            Tutti i Boid necessitano di accedere in lettura alle posizioni e velocità degli altri Boid durante il calcolo 
+            delle proprie nuove velocità. Questo accesso concorrente in sola lettura non presenta problemi di race condition, 
+            ma richiede meccanismi per garantire la consistenza dei dati visualizzati.
+
+        \subsection*{Gestione delle risorse grafiche}
+            L'interfaccia grafica rappresenta una risorsa condivisa che deve essere aggiornata in modo thread-safe. 
+            La visualizzazione deve avvenire sul thread principale dell'interfaccia utente, richiedendo meccanismi 
+            di comunicazione tra i thread di calcolo e quello di rendering.
+
+    \section{Vantaggi del modello ad attori}
+        L'adozione del modello ad attori per l'implementazione della simulazione offre diversi vantaggi significativi:
+
+        \subsection*{Incapsulamento dello stato}
+            Ogni Boid, rappresentato da un attore, mantiene il proprio stato interno (posizione, velocità) in modo 
+            completamente isolato. Questo elimina i problemi di accesso concorrente allo stato condiviso e semplifica 
+            notevolmente il reasoning sulla correttezza del sistema.
+
+        \subsection*{Comunicazione asincrona}
+            Il message passing asincrono consente una maggiore flessibilità nel scheduling delle operazioni e riduce 
+            i problemi di deadlock tipici degli approcci basati su lock espliciti.
+
+        \subsection*{Scalabilità}
+            Il modello ad attori scala naturalmente con il numero di core disponibili, permettendo di sfruttare 
+            efficacemente architetture multi-core e distribuire il carico computazionale.
+
+        \subsection*{Fault tolerance}
+            Gli attori possono essere supervisionati e riavviati in caso di errore, migliorando la robustezza 
+            complessiva del sistema.
 
 
 \chapter{Design}
